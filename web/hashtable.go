@@ -46,73 +46,80 @@ func (h *HashMap) String() string {
 }
 
 func (h *HashMap) Insert(threadid int, key string, value string, index uint) {
+
 	if h.Data[index] == nil {
 		// index is empty, go ahead and insert
 		h.Data[index] = &Node{key: key, value: value}
-		fmt.Println("Thread id: ", threadid, " put <", key, "> at socket <", value, "> in hash table at index ", index)
 	} else {
 		// there is a collision, get into linked-list mode
-		node := h.Data[index]
-		if node.key == key && node.value == value {
-			fmt.Println("Thread id: ", threadid, " put <", key, "> at socket <", value, "> already exists in hash table at index ", index)
-		} else {
-			starting_node := node
-			for ; starting_node.next != nil; starting_node = starting_node.next {
-				fmt.Println(starting_node.key == key)
-				fmt.Println(starting_node.value)
-				if starting_node.key == key {
-					// the key exists, its a modifying operation
-					starting_node.value = value
-					fmt.Println("Thread id: ", threadid, " put <", key, "> at socket <", value, "> in hash table at index ", index)
-					return
-				}
+		starting_node := h.Data[index]
+		fmt.Println(starting_node.next != nil)
+		for ; starting_node.next != nil; starting_node = starting_node.next {
+			if starting_node.key == key && starting_node.value == value {
+				fmt.Println("already exists")
+				return
 			}
-			starting_node.next = &Node{key: key, value: value}
 		}
+		if starting_node.next == nil {
+			if starting_node.key == key && starting_node.value == value {
+				fmt.Println("here2")
+				fmt.Println("already exists")
+				return
+			}
+		}
+		starting_node.next = &Node{key: key, value: value}
 	}
+	fmt.Println(h)
 }
 
-func (h *HashMap) Get(threadid int, key string, index uint) (string, bool) {
+func (h *HashMap) Get(threadid int, key string, index uint) []string {
+	var values []string
 	if h.Data[index] != nil {
 		// key is on this index, but might be somewhere in linked list
 		starting_node := h.Data[index]
 		for ; ; starting_node = starting_node.next {
 			if starting_node.key == key {
 				// key matched
-				fmt.Print("Thread id: ", threadid, " get song <", key, "> at socket from hash table:")
-				return starting_node.value, true
+				values = append(values, starting_node.value)
 			}
 			if starting_node.next == nil {
 				break
 			}
+		}
+		if len(values) > 0 {
+			return values
 		}
 	}
 	// key does not exists
-	fmt.Println("Thread id: ", threadid, " get song <", key, ">does not exist in hash table")
-	return "", false
+	values = append(values, "does not exist")
+	return values
 }
 
-func (h *HashMap) Delete(threadid int, key string, index uint) {
-
-	if h.Data[index] != nil {
-		// key is on this index, but might be somewhere in linked list
-		starting_node := h.Data[index]
-		value := starting_node.value
-		for ; ; starting_node = starting_node.next {
-			if starting_node.key == key {
-				// key matched
-				starting_node.next = starting_node.next.next
-				fmt.Println("Thread id: ", threadid, " delete song <", key, "> at socket <", value, "> from hash table")
+func (h *HashMap) Delete(threadid int, key string, value string, index uint) {
+	flag := false
+	var prev *Node
+	// key is on this index, but might be somewhere in linked list
+	head := h.Data[index]
+	curr_node := head
+	for curr_node != nil {
+		if curr_node.key == key && curr_node.value == value {
+			if prev == nil {
+				head = curr_node.next
 			} else {
-				fmt.Println("Thread id: ", threadid, " delete song <", key, "> does not exist in hash table")
-				return
+				prev.next = curr_node.next
 			}
-			if starting_node.next == nil {
-				break
-			}
-			starting_node = starting_node.next
+			flag = true
+		} else {
+			prev = curr_node
 		}
+		curr_node = curr_node.next
 	}
+	if flag {
+		fmt.Println("deleted from table ", key, value)
+	} else {
+		fmt.Println(key, value, " does not exist in table")
+	}
+
 }
 
 func runRandomOperations(threadid, operations int, entries []string) {
@@ -138,13 +145,11 @@ func runRandomOperations(threadid, operations int, entries []string) {
 				socket := str[1]
 				index := generateIndex(s, tablesize)
 				if val > 0.0 || val <= 0.7 {
-					if getres, ok := NewDict(tablesize).Get(threadid, song, index); ok {
-						fmt.Println(getres)
-					}
+					fmt.Println(NewDict(tablesize).Get(threadid, song, index))
 				} else if val > 0.7 || val <= 0.9 {
 					NewDict(tablesize).Insert(threadid, song, socket, index)
 				} else {
-					NewDict(tablesize).Delete(threadid, song, index)
+					NewDict(tablesize).Delete(threadid, song, socket, index)
 				}
 			} else {
 				fmt.Println("Song socket input format is invalid, please enter correct format")
@@ -158,7 +163,7 @@ func runRandomOperations(threadid, operations int, entries []string) {
 func runThreads(threads, operations int, entries []string) {
 	for i := threads; i > 0; i-- {
 		fmt.Println("Inside run threads function")
-		go runRandomOperations(i, operations, entries)
+		runRandomOperations(i, operations, entries)
 	}
 
 }
