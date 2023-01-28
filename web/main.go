@@ -32,8 +32,13 @@ func main() {
 		}
 	}
 	fmt.Println()
-	mode := input[0]
-	processInput(mode, input)
+	if len(input) > 0 {
+		mode := input[0]
+		processInput(mode, input)
+	} else {
+		fmt.Println("No input was given. Please try again")
+	}
+
 }
 
 // process the input from the console
