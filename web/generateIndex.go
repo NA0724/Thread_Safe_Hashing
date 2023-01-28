@@ -3,10 +3,19 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
+	"log"
 	"strconv"
 )
 
 var chunkSize = 4
+
+/*
+The input to the hash function is a text string (i.e., the song’s name), and the output of
+the hash function is an unsigned integer ranged from 0 to table size n. The input string is
+divided into 4-byte chucks (fill with zeros if the last chunk is not full), reverse the bits
+for all odd numbered chunks, exclusive OR of all those chunks together, the result value is
+then mod by the table size to get hash index, and return the index
+*/
 
 // generate index hash function
 func generateIndex(str string, tablesize int) uint {
@@ -75,7 +84,7 @@ func convertStringToBin(slices []string) []string {
 func parseHexToBin(s string) string {
 	hexToBin, err := strconv.ParseUint(s, 16, 64)
 	if err != nil {
-		return "error"
+		return fmt.Sprint("Error parsing hexadecimal string to decimal: ", err)
 	}
 	return fmt.Sprintf("%032b", hexToBin)
 }
@@ -92,7 +101,7 @@ func reverseAndConvertToBin(hex string) string {
 func binStringToDecimal(b string) uint {
 	u64, err := strconv.ParseUint(b, 2, 64) //binary string to decimal
 	if err != nil {
-		fmt.Println(err)
+		log.Println("Error converting binary string to decimal: ", err)
 	}
 	return uint(u64)
 }

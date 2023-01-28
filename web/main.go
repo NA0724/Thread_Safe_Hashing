@@ -22,6 +22,7 @@ func main() {
 
 		if len(text) != 0 {
 			fmt.Println(text)
+			//exclude lines that are comments
 			if strings.Contains(text, "#") {
 				continue
 			}
@@ -35,6 +36,7 @@ func main() {
 	processInput(mode, input)
 }
 
+// process the input from the console
 func processInput(mode string, input []string) {
 	if isRandom(mode) {
 		randomOperation(input)
@@ -45,13 +47,6 @@ func processInput(mode string, input []string) {
 		return
 	}
 }
-func isRandom(mode string) bool {
-	return strings.Compare(mode, "random") == 0 || strings.Compare(mode, "Random") == 0
-}
-
-func isManual(mode string) bool {
-	return strings.Compare(mode, "manual") == 0 || strings.Compare(mode, "Manual") == 0
-}
 
 func manualOperation(input []string) {
 	fmt.Println("Considering thread id = 0 for Manual mode ")
@@ -59,12 +54,12 @@ func manualOperation(input []string) {
 		entries = append(entries, s)
 	}
 	doManualOperation(entries)
-	fmt.Println("*************   Manual mode ended *************")
 }
 
 func randomOperation(input []string) {
 	var threads, operations int
 	var err error
+	// check if the number of threads and number of operations entered in an integer value
 	if threads, err = strconv.Atoi(input[1]); err == nil {
 		fmt.Println("Thread=", threads)
 	} else {
@@ -81,5 +76,12 @@ func randomOperation(input []string) {
 		entries = append(entries, line)
 	}
 	runThreads(threads, operations, entries)
-	fmt.Println("*************   Random mode ended *************")
+}
+
+func isRandom(mode string) bool {
+	return strings.Compare(mode, "random") == 0 || strings.Compare(mode, "Random") == 0
+}
+
+func isManual(mode string) bool {
+	return strings.Compare(mode, "manual") == 0 || strings.Compare(mode, "Manual") == 0
 }
