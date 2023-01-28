@@ -8,11 +8,12 @@ import (
 var entries []string
 
 func manualOperation(input []string) {
-	fmt.Println("input from user", input)
+	fmt.Println("Considering thread id = 0 for Manual mode ")
 	for _, s := range input[1:] {
 		entries = append(entries, s)
-	} //TODO: do manual operation
-	fmt.Println("**************************")
+	}
+	doManualOperation(entries)
+	fmt.Println("*************   Manual mode ended *************")
 }
 
 func randomOperation(input []string) {
@@ -30,11 +31,9 @@ func randomOperation(input []string) {
 		fmt.Println("Invalid format for number of opertions. Please enter correct format.")
 		return
 	}
-
 	for _, line := range input[3:] {
 		entries = append(entries, line)
 	}
-
-	//runThreads(threads, operations, entries)
-
+	runThreads(threads, operations, entries)
+	fmt.Println("*************   Random mode ended *************")
 }

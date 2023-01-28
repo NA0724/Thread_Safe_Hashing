@@ -8,7 +8,7 @@ import (
 
 var chunkSize = 4
 
-// generate index
+// generate index hash function
 func generateIndex(str string, tablesize int) uint {
 	slices := divChunk(str)
 	binSlice := convertStringToBin(slices)
